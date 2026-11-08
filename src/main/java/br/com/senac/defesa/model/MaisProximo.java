@@ -18,6 +18,8 @@ public class MaisProximo extends RegraDeAlvo {
         double distancia = posicaoTorre.distanciaAte(inimigo.getPosicao());
 
         if (distancia < menorDistancia) {
+            menorDistancia = distancia;
+            escolhido = inimigo;
         }
         }
 
