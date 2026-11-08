@@ -1,4 +1,30 @@
 package br.com.senac.defesa.model;
 
-public class MaisProximo {
+import java.util.List;
+
+public class MaisProximo extends RegraDeAlvo {
+
+    @Override
+    public Inimigo escolherAlvo(
+            List<Inimigo> candidatos,
+            Ponto posicaoTorre) {
+
+        Inimigo escolhido = null;
+
+        double menorDistancia = Double.MAX_VALUE;
+
+        for (Inimigo inimigo : candidatos) {
+
+        double distancia = posicaoTorre.distanciaAte(inimigo.getPosicao());
+
+        if (distancia < menorDistancia) {
+        }
+        }
+
+        return escolhido;
+    }
+    @Override
+    public String getNome() {
+        return "PROXIMO";
+    }
 }
