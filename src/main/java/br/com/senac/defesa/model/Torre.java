@@ -1,6 +1,7 @@
 package br.com.senac.defesa.model;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public abstract class Torre {
 
@@ -14,7 +15,7 @@ public abstract class Torre {
     private final Ponto posicao;
     private final double alcance;
 
-    private String prioridade = "PROXIMO";
+    private RegraDeAlvo regraDeAlvo = new MaisProximo();
     private int recarga;
     private double angulo;
     private Ponto tiroAtual;
@@ -40,7 +41,6 @@ public abstract class Torre {
             recarga--;
             return;
         }
-
         Inimigo alvo = escolherAlvo(inimigos);
 
         if (alvo == null) {
@@ -62,46 +62,23 @@ public abstract class Torre {
 
 
     private Inimigo escolherAlvo(List<Inimigo> inimigos) {
-        Inimigo escolhido = null;
 
-        if (prioridade.equals("PROXIMO")) {
-            double menorDistancia = Double.MAX_VALUE;
-            for (Inimigo inimigo : inimigos) {
-                double distancia = posicao.distanciaAte(inimigo.getPosicao());
-                if (inimigo.estaVivo() && distancia <= alcance && distancia < menorDistancia) {
-                    menorDistancia = distancia;
-                    escolhido = inimigo;
-                }
-            }
-        } else if (prioridade.equals("FORTE")) {
-            int maiorVida = -1;
-            for (Inimigo inimigo : inimigos) {
-                double distancia = posicao.distanciaAte(inimigo.getPosicao());
-                if (inimigo.estaVivo() && distancia <= alcance && inimigo.getVida() > maiorVida) {
-                    maiorVida = inimigo.getVida();
-                    escolhido = inimigo;
-                }
-            }
-        } else if (prioridade.equals("AVANCADO")) {
-            double maisAvancado = -1;
-            for (Inimigo inimigo : inimigos) {
-                double distancia = posicao.distanciaAte(inimigo.getPosicao());
-                if (inimigo.estaVivo() && distancia <= alcance && inimigo.getPercorrido() > maisAvancado) {
-                    maisAvancado = inimigo.getPercorrido();
-                    escolhido = inimigo;
-                }
+        List<Inimigo> candidatos = new ArrayList<>();
+
+        for (Inimigo inimigo : inimigos) {
+
+            double distancia = posicao.distanciaAte(inimigo.getPosicao());
+
+            if (inimigo.estaVivo() && distancia <= alcance) {
+                candidatos.add(inimigo);
             }
         }
 
-        return escolhido;
+        return regraDeAlvo.escolherAlvo(candidatos, posicao);
     }
 
-    public void setPrioridade(String prioridade) {
-        this.prioridade = prioridade;
-    }
-
-    public String getPrioridade() {
-        return prioridade;
+    public void setRegraDeAlvo(RegraDeAlvo regraDeAlvo) {
+        this.regraDeAlvo = regraDeAlvo;
     }
 
     public int getId() {
