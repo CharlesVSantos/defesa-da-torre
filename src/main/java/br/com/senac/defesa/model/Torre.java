@@ -80,6 +80,9 @@ public abstract class Torre {
     public void setRegraDeAlvo(RegraDeAlvo regraDeAlvo) {
         this.regraDeAlvo = regraDeAlvo;
     }
+    public String getPrioridade() {
+        return regraDeAlvo.getNome();
+    }
 
     public int getId() {
         return id;

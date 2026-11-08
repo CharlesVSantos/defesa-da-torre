@@ -97,8 +97,29 @@ public class Partida {
 
     public void mudarPrioridade(int torreId, String prioridade) {
         for (Torre torre : torres) {
+
             if (torre.getId() == torreId) {
-                torre.setPrioridade(prioridade);
+
+                RegraDeAlvo regra = null;
+                switch (prioridade) {
+                    case "PROXIMO":
+                       regra = new MaisProximo();
+                        break;
+
+                    case "FORTE":
+                        regra = new MaisForte();
+                        break;
+
+                    case "AVANCADO":
+                        regra = new MaisAvancado();
+                        break;
+
+                    default:
+                        regra = new MaisProximo();
+                        break;
+                }
+               
+                torre.setRegraDeAlvo(regra);
             }
         }
     }
