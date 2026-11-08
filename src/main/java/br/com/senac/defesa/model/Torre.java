@@ -2,10 +2,15 @@ package br.com.senac.defesa.model;
 
 import java.util.List;
 
-public class Torre {
+public abstract class Torre {
+
+    public abstract void disparar(Inimigo alvo);
+
+    public abstract int tempoDeRecarga();
+
+    public abstract String getTipo();
 
     private final int id;
-    private final String tipo;
     private final Ponto posicao;
     private final double alcance;
 
@@ -14,84 +19,47 @@ public class Torre {
     private double angulo;
     private Ponto tiroAtual;
 
-    public Torre(int id, String tipo, Ponto posicao) {
+    private List<Inimigo> inimigosAtuais;
+
+    public Torre(int id, Ponto posicao, double alcance) {
         this.id = id;
-        this.tipo = tipo;
         this.posicao = posicao;
-        switch (tipo) {
-            case "CANHAO":
-                alcance = 4.0;
-                break;
-            case "GELO":
-                alcance = 3.5;
-                break;
-            case "LASER":
-                alcance = 5.0;
-                break;
-            default:
-                throw new IllegalArgumentException("Tipo de torre desconhecido: " + tipo);
-        }
+        this.alcance = alcance;
     }
 
-    public void agir(List<Inimigo> inimigos) {
+    protected List<Inimigo> getInimigosAtuais() {
+        return inimigosAtuais;
+    }
+
+
+    public final void agir(List<Inimigo> inimigos) {
+
         tiroAtual = null;
-        Inimigo alvo;
 
-        switch (tipo) {
-            case "CANHAO":
-                if (recarga > 0) {
-                    recarga--;
-                    break;
-                }
-                alvo = escolherAlvo(inimigos);
-                if (alvo == null) {
-                    break;
-                }
-                angulo = Math.atan2(alvo.getPosicao().z() - posicao.z(), alvo.getPosicao().x() - posicao.x());
-                // a bala explode e acerta também quem estiver perto do alvo
-                alvo.receberDano(16);
-                for (Inimigo outro : inimigos) {
-                    if (outro != alvo && outro.estaVivo()
-                            && outro.getPosicao().distanciaAte(alvo.getPosicao()) <= 1.5) {
-                        outro.receberDano(5);
-                    }
-                }
-                tiroAtual = alvo.getPosicao();
-                recarga = 5;
-                break;
-
-            case "GELO":
-                if (recarga > 0) {
-                    recarga--;
-                    break;
-                }
-                alvo = escolherAlvo(inimigos);
-                if (alvo == null) {
-                    break;
-                }
-                angulo = Math.atan2(alvo.getPosicao().z() - posicao.z(), alvo.getPosicao().x() - posicao.x());
-                alvo.receberDano(3);
-                alvo.desacelerar(12);
-                tiroAtual = alvo.getPosicao();
-                recarga = 2;
-                break;
-
-            case "LASER":
-                if (recarga > 0) {
-                    recarga--;
-                    break;
-                }
-                alvo = escolherAlvo(inimigos);
-                if (alvo == null) {
-                    break;
-                }
-                angulo = Math.atan2(alvo.getPosicao().z() - posicao.z(), alvo.getPosicao().x() - posicao.x());
-                alvo.receberDano(2);
-                tiroAtual = alvo.getPosicao();
-                recarga = 0;
-                break;
+        if (recarga > 0) {
+            recarga--;
+            return;
         }
+
+        Inimigo alvo = escolherAlvo(inimigos);
+
+        if (alvo == null) {
+            return;
+        }
+
+        angulo = Math.atan2(
+                alvo.getPosicao().z() - posicao.z(),
+                alvo.getPosicao().x() - posicao.x()
+        );
+
+        this.inimigosAtuais = inimigos;
+        disparar(alvo);
+
+        tiroAtual = alvo.getPosicao();
+
+        recarga = tempoDeRecarga();
     }
+
 
     private Inimigo escolherAlvo(List<Inimigo> inimigos) {
         Inimigo escolhido = null;
@@ -134,10 +102,6 @@ public class Torre {
 
     public String getPrioridade() {
         return prioridade;
-    }
-
-    public String getTipo() {
-        return tipo;
     }
 
     public int getId() {
